@@ -48,9 +48,11 @@ jobs:
           sed -i 's|image: .*/hello-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/hello-app:${{ github.sha }}|' deployment.yaml
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5 
         with:
-          commit-message: Update image tag to ${{ github.sha }}
-          title: Update image tag to ${{ github.sha }}
-          body: This PR updates the Docker image tag in the deployment manifest.
-          branch: update-image-tag-${{ github.sha }}
+          token: ${{ secrets.GH_PAT }} 
+          commit-message: "Update image to ${{ github.sha }}"
+          title: "Update image to ${{ github.sha }}"
+          body: "Automated image update by GitHub Actions."
+          branch: "update-image-${{ github.sha }}"
+          base: "main"
