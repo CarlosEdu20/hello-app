@@ -78,6 +78,38 @@ Portanto, a configuração inicial do projeto está concluída.
 ## Etapa 2: Automação com GitHub Actions (CI/CD)
 Com a base da aplicação criada, o próximo passo é automatizar o processo de build e a proposta de deploy. Para isso, o github actions será implementado, o mesmo funcionará como um servidor de Integração Contínua (CI). O objetivo desta etapa é criar um workflow que, a cada push na branch principal, automaticamente constrói uma nova imagem Docker e abre um Pull Request para atualizar a versão no repositório de manifestos.
 
+### 2.1. Crie uma conta no Docker hub
+O Docker Hub será o Container Registry, o local onde as imagens da aplicação serão hospedadas. Caso ainda não tenha, crie uma conta gratuita. Após o login, anote seu nome de usuário, pois o mesmo será importante nos próximos passos.
+
+### 2.2. Geração do Token de Acesso
+Por questões de segurança, nunca devemos expor nossa senha principal. Em vez disso, vamos gerar um Token de Acesso (Access Token) que dará permissão ao GitHub Actions para se conectar à nossa conta. O pequeno tutorial abaixo mostrará como deve ser feito.
+
+<img width="409" height="354" alt="Captura de imagem_20250925_151707" src="https://github.com/user-attachments/assets/ab019263-5e0f-4f6e-9e5f-c655a01ec3e5" />
+
+- Clique em "Account settings"
+
+<img width="1904" height="945" alt="Captura de imagem_20250925_151928" src="https://github.com/user-attachments/assets/4897611e-1aca-4834-ac82-b47119bfa5e8" />
+
+- Quando aparecer a tela de configurações, clique em  "Personal access token" e depois clique em "New access token".
+
+- Defina um nome para seu token, assim como um data de expiração e o mais importante, der as permissões de acesso de Read, Write e delete.
+
+- Logo após, clique em "Generate".
+
+- **IMPORTANTE:** Copie o token gerado e guarde-o em um local seguro. O Docker Hub só mostrará este token uma vez. Você precisará dele para configurar os segredos no GitHub.
+
+
+### 2.3. Configuração dos Segredos no GitHub
+Para que o GitHub Actions possa se conectar ao Docker Hub de forma segura, sem expor nossas credenciais diretamente no código, utilizamos os "Secrets" do repositório. Eles funcionam como um cofre de senhas para esta automação. Siga as seguintes etapas:
+
+- Navegue até o seu repositório principal da aplicação (hello-app).
+
+- Vá para a aba **Settings > Secrets and variables > Actions.**
+
+- Clique no botão New repository secret para adicionar os seguintes segredos:
+
+
+
 
 
   
