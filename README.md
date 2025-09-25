@@ -106,7 +106,62 @@ Para que o GitHub Actions possa se conectar ao Docker Hub de forma segura, sem e
 
 - Vá para a aba **Settings > Secrets and variables > Actions.**
 
-- Clique no botão New repository secret para adicionar os seguintes segredos:
+- Clique no botão **"New repository secret"** para adicionar os seguintes segredos:
+
+<img width="1920" height="547" alt="Captura de imagem_20250925_160030" src="https://github.com/user-attachments/assets/5c32ab8a-6700-4329-81f9-89cb1d055fcc" />
+
+**Segredo do Usuário Docker:**
+- Name: DOCKER_USERNAME
+- Secret: Cole aqui o seu nome de usuário do Docker Hub (que você anotou na etapa 2.1).
+
+**Segredo do Token do Docker:**
+- Name: DOCKER_PASSWORD
+- Secret: Cole aqui o Token de Acesso que você gerou no Docker Hub na etapa 2.2.
+
+### 2.4. Acesso entre Repositórios com Chave SSH
+Para que o workflow no hello-app tenha permissão de escrever (git push) no repositório hello-manifests, é preciso configurar um par de chaves SSH. Use esse comando abaixo para gerar 
+
+```
+ssh-keygen -t rsa -b 4096 -f github_deploy_key -C "seu_email@example.com"
+```
+Este comando cria dois arquivos: github_deploy_key (a chave privada) e github_deploy_key.pub (a chave pública).
+
+<img width="246" height="94" alt="Captura de imagem_20250925_162753" src="https://github.com/user-attachments/assets/9a1e976e-7f3d-4212-be72-63232be6aa82" />
+
+e para ver os conteúdos dessa chave use o comando:
+
+```
+cat nome_da_chave
+```
+
+#### 2.4.1 Configuração da Chave Pública (A Fechadura)
+A chave pública é adicionada ao repositório que receberá o acesso, que no caso é o hello-manifests.
+
+- Navegue até o repositório hello-manifests.
+- Vá em **Settings > Deploy keys** e clique em **Add deploy key**.
+- Prencha os seguintes campos:
+    - Title: Dê um nome, como hello-app-workflow.
+    - Key: Cole o conteúdo completo da sua chave pública (github_deploy_key.pub).
+    - Marque a caixa "Allow write access" para permitir que a chave faça pushes.
+ 
+#### 2.4.2 Configuração da chave privada (A chave)
+A chave privada, que é o segredo, é adicionada ao repositório que realizará a actions, o hello-app.
+
+- Adicione um novo segredo no repositório hello-app:
+    - Name: SSH_PRIVATE_KEY
+    - Secret: Cole o conteúdo completo da sua chave privada (github_deploy_key).
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
