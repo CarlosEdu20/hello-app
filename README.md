@@ -36,6 +36,38 @@ As tecnologias que fazem este projeto funcionar de maneira adequada são essas:
 - Rancher Desktop
 - ArgoCD
 
+## Índice 
+ * [Etapa 1: Estrutura do projeto e criação dos arquivos](#etapa-1-estrutura-do-projeto-e-criação-dos-arquivos)
+    * [1.1. Criação dos repositórios no GitHub](#11-criação-dos-repositórios-no-github)
+    * [1.2. Desenvolvimento da aplicação](#12-desenvolvimento-da-aplicação)
+    * [1.3. Código da aplicação](#13-código-da-aplicação)
+    * [1.4. Dependências](#14-dependências)
+    * [1.5. Containerização](#15-containerização)
+    * [1.6. Enviando tudo para o Github](#16-enviando-tudo-para-o-github)
+* [Etapa 2: Automação com GitHub Actions (CI/CD)](#etapa-2-automação-com-github-actions-cicd)
+    * [2.1. Crie uma conta no Docker hub](#21-crie-uma-conta-no-docker-hub)
+    * [2.2. Geração do token de acesso](#22-geração-do-token-de-acesso)
+    * [2.3. Configuração dos segredos no GitHub](#23-configuração-dos-segredos-no-github)
+    * [2.4. Acesso entre repositórios com chave SSH](#24-acesso-entre-repositórios-com-chave-ssh)
+    * [2.5. Token de acesso (PAT) para API do Github](#25-token-de-acesso-pat-para-api-do-github)
+    * [2.6. O Workflow de automação](#26-o-workflow-de-automação)
+* [Etapa 3: Criação dos Manifestos Kubernetes](#etapa-3-criação-dos-manifestos-kubernetes)
+    * [3.1. Clone do repositório de Manifestos](#31-clone-do-repositório-de-manifestos)
+    * [3.2. Manifesto de deployment](#32-manifesto-de-deployment)
+    * [3.3. Manifesto de service](#33-manifesto-de-service)
+    * [3.4. Envio dos Manifestos ao GitHub](#34-envio-dos-manifestos-ao-github)
+* [Etapa 4: Criação da aplicação no ArgoCD](#etapa-4-criação-da-aplicação-no-argocd)
+    * [4.1. Instalação do ArgoCD](#41-instalação-do-argocd)
+    * [4.2. Acesso à interface web do ArgoCD](#42-acesso-à-interface-web-do-argocd)
+    * [4.3. Login no ArgoCD](#43-login-no-argocd)
+    * [4.4. Configurando a aplicação](#44-configurando-a-aplicação)
+    * [4.5. Sincronização e validação](#45-sincronização-e-validação)
+* [Etapa 5: Acessar e testar a aplicação localmente](#etapa-5-acessar-e-testar-a-aplicação-localmente)
+    * [5.1. Verificando o status do pod](#51-verificando-o-status-do-pod)
+    * [5.2. Acessando a aplicação localmente](#52-acessando-a-aplicação-localmente)
+    * [5.3. Testando a alteração no repositório](#53-testando-a-alteração-no-repositório)
+* [Conclusão](#conclusão)
+
 ## Etapa 1: Estrutura do projeto e criação dos arquivos
 Nesta primeira etapa, é onde será preparada todos os arquivos que serão a fundação deste projeto. Adotando a prática GitOps, a estrutura foi dividida em dois repositórios Git distintos com responsabilidades diferentes; o primeiro contém o código-fonte da aplicação e a pipeline de CI/CD, enquanto o segundo armazena os manifestos Kubernetes que definem o estado desejado da aplicação para o ArgoCD.
 
@@ -276,7 +308,8 @@ kubectl create namespace argocd
 - Com o namespace já criado, use o seguinte comando:
 
 ```
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml\n                                                                         ─╯
+kubectl apply -n argcd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
 ```
 
 
