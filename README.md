@@ -341,7 +341,8 @@ A saída esperada deve ser essa:
 Agora que sabemos que o pod está rodando sem problemas, vamos acessar a aplicação para garantir que ela está respondendo. Para isso, usamos o **port-forward** para criar um túnel de rede seguro do seu computador até o serviço no cluster. Mantenha o terminal anterior aberto e, em um novo terminal, execute o comando:
 
 ```
-kubectl port-forward service/nome-do-pod -n namespace 8081:8080
+kubectl port-forward service/hello-app-service -n <nome_da_sua_namespace> 8081:8080
+
 ```
 
 Logo após, irá mostrar a aplicação funcionando:
@@ -357,7 +358,19 @@ A resposta da aplicação via `curl`:
 ### 5.3. Testando a alteração no repositório
 Para ter certeza que o ArgoCD está sincronizando corretamente, vamos alterar a mensagem do arquivo `main.py`.
 
-Vamos colocar essa mensagem "Alteração feita com sucesso" e logo seguido vamos dar uma git push do repositório
+Vamos colocar essa mensagem "Alteração feita com sucesso" e logo seguido vamos dar uma git push do repositório. Percebe-se que vai ser tem um novo pull request no repositório hello-manifests, aprove o mesmo.
+
+Com isso, o ArgoCD verá que teve uma mudança na fonte e aplicará as alterações feitas. Como mostra nessa imagem
+
+
+<img width="1903" height="932" alt="Captura de imagem_20250926_152501" src="https://github.com/user-attachments/assets/bd7d4eb9-9fd0-4355-b319-72631d771373" />
+
+
+Veja que foi criado um novo pod da aplicação. A imagem logo abaixo mostra a mensagem nova:
+
+<img width="1904" height="963" alt="Captura de imagem_20250926_152913" src="https://github.com/user-attachments/assets/88b15b0b-2efd-4624-836e-8e45bbdc8bd5" />
+
+
 
 
 
