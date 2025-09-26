@@ -10,7 +10,7 @@ imagens Docker diretamente a partir dos commits.
 - O **ArgoCD**, por sua vez, implementa o conceito de **GitOps**, onde o próprio Git é a
 “fonte de verdade” da infraestrutura e dos deploys em Kubernetes.
 
-Com isso, este projeto busca automatizar o ciclo completo de desenvolvimento, build, deploy e execução de uma aplicação FastAPI simples, usando GitHub Actions para CI/CD, Docker Hub como registry, e ArgoCD para entrega contínua em Kubernetes local com Rancher Desktop.
+Com isso, este projeto busca automatizar o ciclo completo de desenvolvimento, build, deploy e execução de uma aplicação FastAPI simples, usando GitHub Actions para CI/CD, Docker Hub como registry, e ArgoCD para entrega contínua em um Kubernetes local com Rancher Desktop.
 
 ## Pré-requisitos:
 Estes são os pré-requistos para fazer este projeto funcionar:
@@ -39,30 +39,31 @@ As tecnologias que fazem este projeto funcionar de maneira adequada são essas:
 ## Etapa 1: Estrutura do projeto e criação dos arquivos
 Nesta primeira etapa, é onde será preparada todos os arquivos que serão a fundação deste projeto. Adotando a prática GitOps, a estrutura foi dividida em dois repositórios Git distintos com responsabilidades diferentes; o primeiro contém o código-fonte da aplicação e a pipeline de CI/CD, enquanto o segundo armazena os manifestos Kubernetes que definem o estado desejado da aplicação para o ArgoCD.
 
-### 1.1. Criação dos Repositórios no GitHub
+### 1.1. Criação dos repositórios no GitHub
 A metodologia GitOps separa o código da aplicação da configuração do ambiente. Para isso, é uma boa prática criar dois repositórios:
 
-- hello-app: Repositório para o código-fonte da aplicação, Dockerfile e o workflow de CI/CD.
-- hello-manifests: Repositório para os manifestos Kubernetes que descrevem o estado desejado da aplicação no cluster.
+- `hello-app`: Repositório para o código-fonte da aplicação, Dockerfile e o workflow de CI/CD.
+  
+- `hello-manifests`: Repositório para os manifestos Kubernetes que descrevem o estado desejado da aplicação no cluster.
 
 Como os repositórios estão separados, acesse esse link https://github.com/CarlosEdu20/hello-manifests.
 
-### 1.2. Desenvolvimento da Aplicação
-Após criar os repositórios, clonamos o `hello-app` localmente para adicionar os arquivos da aplicação. Para isso, usaremos o seguinte comando.
+### 1.2. Desenvolvimento da aplicação
+Após criar os repositórios, clonaremos o `hello-app` localmente para adicionar os arquivos da aplicação. Para essa finalidade, usaremos o seguinte comando.
 
 ```
 git clone https://github.com/SEU_USUARIO/hello-app.git
 cd hello-app
 ```
 
-### 1.3. Código da Aplicação
-Crie um arquivo chamado `main.py` com um endpoint simples que retorna uma mensagem "Hello World". O código do arquivo está disponível neste repositório.
+### 1.3. Código da aplicação
+Crie um arquivo chamado `main.py` com um endpoint simples que retorna uma mensagem "Hello World". O código do arquivo estará disponível neste repositório.
 
 ### 1.4. Dependências
 Crie um arquivo chamado `requirements.txt`, nele ficarão as bibliotecas Python necessárias para a aplicação rodar. As bibleotecas estão presente nestes reposítório.
 
 ### 1.5. Containerização 
-Crie um arquivo Dockerfile para definir a receita de construção da imagem Docker. Este arquivo instrui o Docker a copiar o código, instalar as dependências e definir o comando para executar a aplicação. O script do Dockerfile está logo acima
+Crie um arquivo `Dockerfile` para definir a receita de construção da imagem Docker. Este arquivo instrui o Docker a copiar o código, instalar as dependências e definir o comando para executar a aplicação. O script do Dockerfile está logo acima
 
 ### 1.6. Enviando tudo para o Github
 Com todos os arquivos já criados, envie para o repositório remoto no Github usando os seguintes comandos:
@@ -76,33 +77,33 @@ git push origin main
 Portanto, a configuração inicial do projeto está concluída.
 
 ## Etapa 2: Automação com GitHub Actions (CI/CD)
-Com a base da aplicação criada, o próximo passo é automatizar o processo de build e a proposta de deploy. Para isso, o github actions será implementado, o mesmo funcionará como um servidor de Integração Contínua (CI). O objetivo desta etapa é criar um workflow que, a cada push na branch principal, automaticamente constrói uma nova imagem Docker e abre um Pull Request para atualizar a versão no repositório de manifestos.
+Com a base da aplicação já criada, o próximo passo é automatizar o processo de build e a proposta de deploy. Portanto, o github actions será implementado, o mesmo funcionará como um servidor de Integração Contínua (CI). O objetivo desta etapa é criar um workflow que, a cada push na branch principal, automaticamente constrói uma nova imagem Docker e abre um Pull Request para atualizar a versão no repositório de manifestos.
 
 ### 2.1. Crie uma conta no Docker hub
-O Docker Hub será o Container Registry, o local onde as imagens da aplicação serão hospedadas. Caso ainda não tenha, crie uma conta gratuita. Após o login, anote seu nome de usuário, pois o mesmo será importante nos próximos passos.
+O Docker Hub será o Container Registry, o local onde as imagens da aplicação serão hospedadas. Caso ainda não tenha, crie uma conta gratuita. Após o login, anote seu nome de usuário, pois será importante nos próximos passos.
 
-### 2.2. Geração do Token de Acesso
-Por questões de segurança, nunca devemos expor nossa senha principal. Em vez disso, vamos gerar um Token de Acesso (Access Token) que dará permissão ao GitHub Actions para se conectar à nossa conta. O pequeno tutorial abaixo mostrará como deve ser feito.
+### 2.2. Geração do token de acesso
+Por questões de segurança, nunca devemos expor nossa senha principal. Em vez disso, vamos gerar um token de acesso (Access Token) que dará permissão ao GitHub Actions para se conectar à nossa conta. O pequeno tutorial abaixo mostrará como deve ser feito.
 
 <img width="409" height="354" alt="Captura de imagem_20250925_151707" src="https://github.com/user-attachments/assets/ab019263-5e0f-4f6e-9e5f-c655a01ec3e5" />
 
-- Clique em "Account settings"
+- Clique em **"Account settings"**
 
 <img width="1904" height="945" alt="Captura de imagem_20250925_151928" src="https://github.com/user-attachments/assets/4897611e-1aca-4834-ac82-b47119bfa5e8" />
 
-- Quando aparecer a tela de configurações, clique em  "Personal access token" e depois clique em "New access token".
+- Quando aparecer a tela de configurações, clique em  **"Personal access token"** e depois clique em **"New access token"**.
 
-- Defina um nome para seu token, assim como um data de expiração e o mais importante, der as permissões de acesso de Read, Write e delete.
+- Defina um nome para seu token, assim como um data de expiração e o mais importante, der as permissões de acesso de **Read, Write e delete.**
 
-- Logo após, clique em "Generate".
+- Logo após, clique em **"Generate"**.
 
 - **IMPORTANTE:** Copie o token gerado e guarde-o em um local seguro. O Docker Hub só mostrará este token uma vez. Você precisará dele para configurar os segredos no GitHub.
 
 
-### 2.3. Configuração dos Segredos no GitHub
+### 2.3. Configuração dos segredos no GitHub
 Para que o GitHub Actions possa se conectar ao Docker Hub de forma segura, sem expor nossas credenciais diretamente no código, utilizamos os "Secrets" do repositório. Eles funcionam como um cofre de senhas para esta automação. Siga as seguintes etapas:
 
-- Navegue até o seu repositório principal da aplicação (hello-app).
+- Navegue até o seu repositório principal da aplicação `(hello-app)`.
 
 - Vá para a aba **Settings > Secrets and variables > Actions.**
 
@@ -111,45 +112,46 @@ Para que o GitHub Actions possa se conectar ao Docker Hub de forma segura, sem e
 <img width="1920" height="547" alt="Captura de imagem_20250925_160030" src="https://github.com/user-attachments/assets/5c32ab8a-6700-4329-81f9-89cb1d055fcc" />
 
 **Segredo do Usuário Docker:**
-- Name: DOCKER_USERNAME
-- Secret: Cole aqui o seu nome de usuário do Docker Hub (que você anotou na etapa 2.1).
+- **Name:** DOCKER_USERNAME
+- **Secret:** Cole aqui o seu nome de usuário do Docker Hub (que você anotou na etapa 2.1).
 
 **Segredo do Token do Docker:**
-- Name: DOCKER_PASSWORD
-- Secret: Cole aqui o Token de Acesso que você gerou no Docker Hub na etapa 2.2.
+- **Name:** DOCKER_PASSWORD
+- **Secret:** Cole aqui o Token de Acesso que você gerou no Docker Hub na etapa 2.2.
 
-### 2.4. Acesso entre Repositórios com Chave SSH
+### 2.4. Acesso entre repositórios com chave SSH
 Para que o workflow no hello-app tenha permissão de escrever (git push) no repositório hello-manifests, é preciso configurar um par de chaves SSH. Use esse comando abaixo para gerar 
 
 ```
 ssh-keygen -t rsa -b 4096 -f github_deploy_key -C "seu_email@example.com"
 ```
-Este comando cria dois arquivos: github_deploy_key (a chave privada) e github_deploy_key.pub (a chave pública).
+Este comando cria dois arquivos: **github_deploy_key (a chave privada)** e **github_deploy_key.pub (a chave pública)**.
 
 <img width="246" height="94" alt="Captura de imagem_20250925_162753" src="https://github.com/user-attachments/assets/9a1e976e-7f3d-4212-be72-63232be6aa82" />
 
-e para ver os conteúdos dessa chave use o comando:
+E para ver os conteúdos dessas chaves use o comando:
 
 ```
 cat nome_da_chave
 ```
 
-#### 2.4.1 Configuração da Chave Pública (A Fechadura)
-A chave pública é adicionada ao repositório que receberá o acesso, que no caso é o hello-manifests.
+#### 2.4.1 Configuração da chave pública (A Fechadura)
+A chave pública é adicionada ao repositório que receberá o acesso, que no caso é o `hello-manifests`.
 
-- Navegue até o repositório hello-manifests.
+- Navegue até o repositório `hello-manifests`.
 - Vá em **Settings > Deploy keys** e clique em **Add deploy key**.
+  
 - Prencha os seguintes campos:
-    - Title: Dê um nome, como hello-app-workflow.
-    - Key: Cole o conteúdo completo da sua chave pública (github_deploy_key.pub).
-    - Marque a caixa "Allow write access" para permitir que a chave faça pushes.
+    - **Title:** Dê um nome, como `hello-app-workflow`.
+    - **Key:** Cole o conteúdo completo da sua chave pública (github_deploy_key.pub).
+    - Marque a caixa **"Allow write access"** para permitir que a chave faça pushes.
  
 #### 2.4.2 Configuração da chave privada (A chave)
-A chave privada, que é o segredo, é adicionada ao repositório que realizará a actions, o hello-app.
+A chave privada, que é o segredo, é adicionada ao repositório que realizará a actions, o `hello-app`.
 
-- Adicione um novo segredo no repositório hello-app:
-    - Name: SSH_PRIVATE_KEY
-    - Secret: Cole o conteúdo completo da sua chave privada (github_deploy_key).
+- Adicione um novo segredo no repositório `hello-app`:
+    - **Name:** SSH_PRIVATE_KEY
+    - **Secret:** Cole o conteúdo completo da sua chave privada (github_deploy_key).
 
 ### 2.5. Token de acesso (PAT) para API do Github
 Enquanto a chave SSH serve para operações Git, a criação do Pull Request é uma operação da API do GitHub. Para isso, precisamos de um Personal Access Token (PAT). Para gerar o PAT, siga estes seguintes passos:
@@ -159,16 +161,16 @@ Enquanto a chave SSH serve para operações Git, a criação do Pull Request é 
 
 Agora faça as seguintes configurações no token:
 
-- Note: Dê um nome descritivo, como actions-cross-repo-pr.
-- Expiration: Defina uma data de validade.
-- Select scopes: Marque a caixa de seleção principal repo.
+- **Note:** Dê um nome descritivo, como actions-cross-repo-pr.
+- **Expiration:** Defina uma data de validade.
+- **Select scopes:** Marque a caixa de seleção principal repo.
 
 Agora configure os segredos no repositório do hello-app.
-- Name: GH_PAT
-- Secret: Cole o Personal Access Token que você acabou de gerar.
+- **Name:** GH_PAT
+- **Secret:** Cole o Personal Access Token que você acabou de gerar.
 
 
-### 2.6. O Workflow de Automação
+### 2.6. O Workflow de automação
 Com todas as permissões e segredos devidamente configurados, A etapa final é criar o arquivo de workflow que orquestra toda a automação. Este arquivo é o cérebro da pipeline de CI/CD. Crie a estrutura de pastas como `.github/workflows/` no seu repositório **hello-app** e, dentro dela, crie o arquivo `ci.yml` com o conteúdo disponibilizado neste repositório. Com este arquivo, a Etapa 2 está finalizado. Agora você tem uma pipeline de CI totalmente funcional que é acionada a cada alteração no código da sua aplicação.
 
 
@@ -188,7 +190,7 @@ Aqui mostra a evidência do pull request para o hello-manifests:
 Com a pipeline de CI funcionando devidamente, agora devemos definir como a aplicação será executada dentro do cluster Kubernetes. Para isso, deve-se criar os arquivos de manifesto no repositório hello-manifests. Estes arquivos vão ser a "fonte da verdade" que o ArgoCD utilizará para gerenciar a aplicação.
 
 ### 3.1. Clone do Repositório de Manifestos
-Primeiramente, clonamos o repositório localmente para poder criar e editar os arquivos.
+Primeiramente, clonaremos o repositório localmente para poder criar e editar os arquivos.
 
 ```
 git clone https://github.com/SEU_USUARIO/hello-manifests.git
@@ -342,33 +344,42 @@ Agora que sabemos que o pod está rodando sem problemas, vamos acessar a aplica�
 
 ```
 kubectl port-forward service/hello-app-service -n <nome_da_sua_namespace> 8081:8080
-
 ```
 
-Logo após, irá mostrar a aplicação funcionando:
+Logo após, o terminal indicará que o encaminhamento de porta está ativo:
+
 
 <img width="1916" height="936" alt="Captura de imagem_20250926_150938" src="https://github.com/user-attachments/assets/81255c3a-cfa7-41d2-889b-361778e1265b" />
 
 
-A resposta da aplicação via `curl`:
+A resposta da aplicação via `curl` pode ser verificada em um terceiro terminal:
+
 
 <img width="1910" height="98" alt="Captura de imagem_20250926_151215" src="https://github.com/user-attachments/assets/b98fd9b7-9791-40d3-ab30-4865e7271ecc" />
 
 
 ### 5.3. Testando a alteração no repositório
-Para ter certeza que o ArgoCD está sincronizando corretamente, vamos alterar a mensagem do arquivo `main.py`.
+Para validar o ciclo completo dessa pipeline CI/CD, vamos alterar a mensagem no arquivo `main.py` e observar a automação em ação.
 
-Vamos colocar essa mensagem "Alteração feita com sucesso" e logo seguido vamos dar uma git push do repositório. Percebe-se que vai ser tem um novo pull request no repositório hello-manifests, aprove o mesmo.
+Altere a mensagem para "Alteração feita com sucesso!" e envie a mudança para o repositório hello-app com git push. Você notará que um novo pull request será criado automaticamente no repositório hello-manifests. Aprove este pull request para continuar o fluxo.
 
-Com isso, o ArgoCD verá que teve uma mudança na fonte e aplicará as alterações feitas. Como mostra nessa imagem
-
+Com isso, o ArgoCD detectará a mudança na "fonte da verdade" e aplicará as alterações no cluster. Como mostra a imagem, a aplicação entrará em sincronia
 
 <img width="1903" height="932" alt="Captura de imagem_20250926_152501" src="https://github.com/user-attachments/assets/bd7d4eb9-9fd0-4355-b319-72631d771373" />
 
 
-Veja que foi criado um novo pod da aplicação. A imagem logo abaixo mostra a mensagem nova:
+Ao verificar novamente com curl, a nova mensagem será exibida, confirmando que a atualização foi implantada com sucesso:
+
 
 <img width="1904" height="963" alt="Captura de imagem_20250926_152913" src="https://github.com/user-attachments/assets/88b15b0b-2efd-4624-836e-8e45bbdc8bd5" />
+
+
+## Conclusão:
+Este projeto abrange com sucesso a implementação de uma pipeline de CI/CD completa, utilizando ferramentas modernas de DevOps e a metodologia GitOps. A partir de uma simples alteração no código-fonte, todo o processo de build, publicação da imagem, atualização de configuração e implantação no Kubernetes ocorre de forma automatizada, segura e rastreável.
+
+A automação reduz a intervenção manual, minimiza o risco de erros e acelera a entrega de valor, validando na prática os benefícios da Integração e Entrega Contínua.
+
+
 
 
 
