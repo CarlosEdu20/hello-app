@@ -263,6 +263,58 @@ Com esta etapa concluída, o repositório de manifestos está pronto para ser mo
 Com a pipeline de CI (Etapa 2) e os manifestos (Etapa 3) prontos, esta é a etapa que implementa a Entrega Contínua (CD). Configuraremos o ArgoCD para monitorar o repositório hello-manifests e garantir que o estado do nosso cluster Kubernetes seja sempre um reflexo fiel do que está definido nos arquivos de manifesto.
 
 
+### 4.1. Acesso à Interface Web do ArgoCD
+Para acessar a interface do ArgoCD, que normalmente não é exposta publicamente, usaremos o encaminhamento de portas do kubectl. Com isso, Digite o seguinte comando:
+
+```
+kubectl port-forward svc/argocd-server -n argocd 8081:443
+```
+Mantenha este terminal em execução enquanto usa a interface.
+
+Abra seu navegador e acesse https://localhost:8081/.
+
+### 4.2. Login no ArgoCD
+Use as seguintes credenciais para fazer o login:
+
+- **Username:** admin
+- **Password:** Para obter a senha inicial, execute o seguinte comando no terminal:
+
+```
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+<img width="1902" height="946" alt="Captura de imagem_20250926_120804" src="https://github.com/user-attachments/assets/af027e93-bf94-4806-8b2a-14b4ded00b79" />
+
+### 4.3. Configurando a aplicação
+Dentro do painel do ArgoCD, vamos criar a aplicação que fará o vínculo com nosso repositório Git.
+
+- Clique no botão **"+ NEW APP"** no canto superior esquerdo.
+- Preencha o formulário com as informações a seguir:
+  
+    **General:**
+  - **Application Name:** hello-app
+  - **Project Name:** default
+  - **Sync Policy**: Automatic
+
+    **Source:**
+  - **Repository URL:** A URL do seu repositório de manifestos (ex: https://github.com/SEU_USUARIO/hello-manifests.git).
+  - **Revision:** Sua branch principal.
+  - **Path:**.
+
+   **Destination:**
+  - **Cluster URL:** https://kubernetes.default.svc
+  - **Namespace:** Coloque o namespace que você criou 
+
+ 
+
+
+
+
+
+
+
+
+
 
 
 
