@@ -135,7 +135,7 @@ E para ver os conteúdos dessas chaves use o comando:
 cat nome_da_chave
 ```
 
-#### 2.4.1 Configuração da chave pública (A Fechadura)
+#### 2.4.1. Configuração da chave pública (A Fechadura)
 A chave pública é adicionada ao repositório que receberá o acesso, que no caso é o `hello-manifests`.
 
 - Navegue até o repositório `hello-manifests`.
@@ -146,7 +146,7 @@ A chave pública é adicionada ao repositório que receberá o acesso, que no ca
     - **Key:** Cole o conteúdo completo da sua chave pública (github_deploy_key.pub).
     - Marque a caixa **"Allow write access"** para permitir que a chave faça pushes.
  
-#### 2.4.2 Configuração da chave privada (A chave)
+#### 2.4.2. Configuração da chave privada (A chave)
 A chave privada, que é o segredo, é adicionada ao repositório que realizará a actions, o `hello-app`.
 
 - Adicione um novo segredo no repositório `hello-app`:
@@ -189,7 +189,7 @@ Aqui mostra a evidência do pull request para o hello-manifests:
 ## Etapa 3: Criação dos Manifestos Kubernetes
 Com a pipeline de CI funcionando devidamente, agora devemos definir como a aplicação será executada dentro do cluster Kubernetes. Para isso, deve-se criar os arquivos de manifesto no repositório hello-manifests. Estes arquivos vão ser a "fonte da verdade" que o ArgoCD utilizará para gerenciar a aplicação.
 
-### 3.1. Clone do Repositório de Manifestos
+### 3.1. Clone do repositório de Manifestos
 Primeiramente, clonaremos o repositório localmente para poder criar e editar os arquivos.
 
 ```
@@ -197,10 +197,10 @@ git clone https://github.com/SEU_USUARIO/hello-manifests.git
 cd hello-manifests
 ```
 
-### 3.2. Manifesto de Deployment 
+### 3.2. Manifesto de deployment 
 O Deployment é um objeto do Kubernetes que gerencia a implantação e a escalabilidade da aplicação, garantindo que um número específico de réplicas (pods) esteja sempre em execução. 
 
-Criaremos o arquivo deployment.yaml com seguinte conteúdo:
+Criaremos o arquivo `deployment.yaml` com seguinte conteúdo:
 
 ```
 apiVersion: apps/v1
@@ -225,10 +225,10 @@ spec:
         ports:
         - containerPort: 80
 ```
-Lembre-se de substituir SEU_DOCKER_USERNAME pelo seu nome de usuário do Docker Hub.
+Lembre-se de substituir **SEU_DOCKER_USERNAME** pelo seu nome de usuário do Docker Hub.
 
 
-### 3.3. Manifesto de Service 
+### 3.3. Manifesto de service 
 O service expõe nossa aplicação como um serviço de rede, criando um ponto de acesso estável para os pods gerenciados pelo Deployment.
 
 Criaremos o seguinte arquivo service.yaml:
@@ -250,7 +250,7 @@ spec:
 ```
 
 ### 3.4. Envio dos Manifestos ao GitHub
-Após criar os dois arquivos, nós os enviamos para a branch `main` do repositório hello-manifests.
+Após criar os dois arquivos, enviaremos para a branch `main` do repositório hello-manifests.
 
 ```
 git add .
@@ -258,14 +258,31 @@ git commit -m "feat: add initial deployment and service manifests"
 git push origin main
 ```
 
-Com esta etapa concluída, o repositório de manifestos está pronto para ser monitorado pelo ArgoCD.
+Com esta etapa concluída, o repositório de manifestos estará pronto para ser monitorado pelo ArgoCD.
 
 
-## Etapa 4: Criação da Aplicação no ArgoCD
-Com a pipeline de CI (Etapa 2) e os manifestos (Etapa 3) prontos, esta é a etapa que implementa a Entrega Contínua (CD). Configuraremos o ArgoCD para monitorar o repositório hello-manifests e garantir que o estado do nosso cluster Kubernetes seja sempre um reflexo fiel do que está definido nos arquivos de manifesto.
+## Etapa 4: Criação da aplicação no ArgoCD
+Com a pipeline de CI (Etapa 2) e os manifestos (Etapa 3) prontos, esta é a etapa que implementa a Entrega Contínua (CD). Configuraremos o ArgoCD para monitorar o repositório `hello-manifests` e garantir que o estado do cluster Kubernetes seja sempre um reflexo fiel do que está definido nos arquivos de manifesto.
+
+## 4.1. Instalação do ArgoCD
+Para poder funcionar o ArgoCD na sua máquina local, siga estes passos para uma instalação bem sucessdida:
+
+- Crie um namespace usando o seguinte comando
+  
+```
+kubectl create namespace argocd
+```
+
+- Com o namespace já criado, use o seguinte comando:
+
+```
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml\n                                                                         ─╯
+```
 
 
-### 4.1. Acesso à Interface Web do ArgoCD
+
+
+### 4.2. Acesso à interface web do ArgoCD
 Para acessar a interface do ArgoCD, que normalmente não é exposta publicamente, usaremos o encaminhamento de portas do kubectl. Com isso, Digite o seguinte comando:
 
 ```
@@ -273,9 +290,9 @@ kubectl port-forward svc/argocd-server -n argocd 8888:443
 ```
 Mantenha este terminal em execução enquanto usa a interface.
 
-Abra seu navegador e acesse https://localhost:8888/.
+Abra seu navegador e acesse **https://localhost:8888/**.
 
-### 4.2. Login no ArgoCD
+### 4.3. Login no ArgoCD
 Use as seguintes credenciais para fazer o login:
 
 - **Username:** admin
@@ -287,7 +304,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 <img width="1902" height="946" alt="Captura de imagem_20250926_120804" src="https://github.com/user-attachments/assets/af027e93-bf94-4806-8b2a-14b4ded00b79" />
 
-### 4.3. Configurando a aplicação
+### 4.4. Configurando a aplicação
 Dentro do painel do ArgoCD, vamos criar a aplicação que fará o vínculo com nosso repositório Git.
 
 - Clique no botão **"+ NEW APP"** no canto superior esquerdo.
@@ -310,17 +327,17 @@ Dentro do painel do ArgoCD, vamos criar a aplicação que fará o vínculo com n
 Após preencher, clique em **"CREATE"** no topo da página.
 
 
-### 4.4. Sincronização e validação
+### 4.5. Sincronização e validação
 Após a criação da aplicação, o ArgoCD exibirá um "card" representando o hello-app. Como a política de sincronização é automática, o ArgoCD irá imediatamente:
 
-- Clonar o repositório hello-manifests.
+- Clonar o repositório `hello-manifests`.
 
-- Comparar os arquivos (deployment.yaml, service.yaml) com o que está rodando no cluster.
+- Comparar os arquivos (`deployment.yaml`, `service.yaml`) com o que está rodando no cluster.
 
 - Aplicar os manifestos para criar os recursos da aplicação no Kubernetes.
 
 
- Em alguns instantes, o status da aplicação deve mudar para Synced (Sincronizado) e Healthy (Saudável), indicando que a implantação foi bem-sucedida.
+ Em alguns instantes, o status da aplicação deve mudar para **Synced** (Sincronizado) e **Healthy** (Saudável), indicando que a implantação foi bem-sucedida.
 
  <img width="1834" height="936" alt="Captura de imagem_20250926_143230" src="https://github.com/user-attachments/assets/c604607a-932c-4044-bd68-e87b5c897bdb" />
 
@@ -339,7 +356,7 @@ A saída esperada deve ser essa:
 
 <img width="1897" height="102" alt="Captura de imagem_20250926_144910" src="https://github.com/user-attachments/assets/1320d26d-ad1a-4365-ac74-3671439a0871" />
 
-### 5.2. Acessando a Aplicação Localmente
+### 5.2. Acessando a aplicação localmente
 Agora que sabemos que o pod está rodando sem problemas, vamos acessar a aplicação para garantir que ela está respondendo. Para isso, usamos o **port-forward** para criar um túnel de rede seguro do seu computador até o serviço no cluster. Mantenha o terminal anterior aberto e, em um novo terminal, execute o comando:
 
 ```
