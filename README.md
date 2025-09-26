@@ -151,6 +151,33 @@ A chave privada, que é o segredo, é adicionada ao repositório que realizará 
     - Name: SSH_PRIVATE_KEY
     - Secret: Cole o conteúdo completo da sua chave privada (github_deploy_key).
 
+### 2.5. Token de acesso (PAT) para API do Github
+Enquanto a chave SSH serve para operações Git, a criação do Pull Request é uma operação da API do GitHub. Para isso, precisamos de um Personal Access Token (PAT). Para gerar o PAT, siga estes seguintes passos:
+
+- No seu perfil do GitHub, vá em **Settings > Developer settings > Personal access tokens > Tokens (classic)**.
+- Clique em **Generate new Token**
+
+Agora faça as seguintes configurações no token:
+
+- Note: Dê um nome descritivo, como actions-cross-repo-pr.
+- Expiration: Defina uma data de validade.
+- Select scopes: Marque a caixa de seleção principal repo.
+
+Agora configure os segredos no repositório do hello-app.
+- Name: GH_PAT
+- Secret: Cole o Personal Access Token que você acabou de gerar.
+
+
+### 2.6. O Workflow de Automação
+Com todas as permissões e segredos devidamente configurados, A etapa final é criar o arquivo de workflow que orquestra toda a automação. Este arquivo é o cérebro da pipeline de CI/CD. Crie a estrutura de pastas como `.github/workflows/` no seu repositório **hello-app** e, dentro dela, crie o arquivo `ci.yml` com o conteúdo disponibilizado neste repositório. Com este arquivo, a Etapa 2 está finalizado. Agora você tem uma pipeline de CI totalmente funcional que é acionada a cada alteração no código da sua aplicação.
+
+
+
+
+
+
+
+
 
 
 
