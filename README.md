@@ -267,11 +267,11 @@ Com a pipeline de CI (Etapa 2) e os manifestos (Etapa 3) prontos, esta é a etap
 Para acessar a interface do ArgoCD, que normalmente não é exposta publicamente, usaremos o encaminhamento de portas do kubectl. Com isso, Digite o seguinte comando:
 
 ```
-kubectl port-forward svc/argocd-server -n argocd 8081:443
+kubectl port-forward svc/argocd-server -n argocd 8888:443
 ```
 Mantenha este terminal em execução enquanto usa a interface.
 
-Abra seu navegador e acesse https://localhost:8081/.
+Abra seu navegador e acesse https://localhost:8888/.
 
 ### 4.2. Login no ArgoCD
 Use as seguintes credenciais para fazer o login:
@@ -296,17 +296,76 @@ Dentro do painel do ArgoCD, vamos criar a aplicação que fará o vínculo com n
   - **Project Name:** default
   - **Sync Policy**: Automatic
 
-    **Source:**
+   **Source:**
   - **Repository URL:** A URL do seu repositório de manifestos (ex: https://github.com/SEU_USUARIO/hello-manifests.git).
   - **Revision:** Sua branch principal.
   - **Path:**.
 
    **Destination:**
   - **Cluster URL:** https://kubernetes.default.svc
-  - **Namespace:** Coloque o namespace que você criou 
+  - **Namespace:** Coloque o namespace que você criou
+
+Após preencher, clique em **"CREATE"** no topo da página.
+
+
+### 4.4. Sincronização e validação
+Após a criação da aplicação, o ArgoCD exibirá um "card" representando o hello-app. Como a política de sincronização é automática, o ArgoCD irá imediatamente:
+
+- Clonar o repositório hello-manifests.
+
+- Comparar os arquivos (deployment.yaml, service.yaml) com o que está rodando no cluster.
+
+- Aplicar os manifestos para criar os recursos da aplicação no Kubernetes.
+
+
+ Em alguns instantes, o status da aplicação deve mudar para Synced (Sincronizado) e Healthy (Saudável), indicando que a implantação foi bem-sucedida.
+
+ <img width="1834" height="936" alt="Captura de imagem_20250926_143230" src="https://github.com/user-attachments/assets/c604607a-932c-4044-bd68-e87b5c897bdb" />
+
+
+ ## Etapa 5: Acessar e testar a aplicação localmente
+ Com a aplicação sincronizada pelo ArgoCD, a etapa final do projeto é verificar se ela está rodando corretamente no cluster e se conseguimos acessá-la.
+
+ ### 5.1. Verificando o status do pod
+ O primeiro passo é usar o kubectl para listar os pods no cluster e confirmar se o mesmo foram criados e estão funcionando na aplicação. Para esse propósito, digite o seguinte comando
+
+```
+kubectl get pods -n (nome_da_sua_namespace)
+```
+
+A saída esperada deve ser essa:
+
+<img width="1897" height="102" alt="Captura de imagem_20250926_144910" src="https://github.com/user-attachments/assets/1320d26d-ad1a-4365-ac74-3671439a0871" />
+
+### 5.2. Acessando a Aplicação Localmente
+Agora que sabemos que o pod está rodando sem problemas, vamos acessar a aplicação para garantir que ela está respondendo. Para isso, usamos o **port-forward** para criar um túnel de rede seguro do seu computador até o serviço no cluster. Mantenha o terminal anterior aberto e, em um novo terminal, execute o comando:
+
+```
+kubectl port-forward service/nome-do-pod -n namespace 8081:8080
+```
+
+Logo após, irá mostrar a aplicação funcionando:
+
+<img width="1916" height="936" alt="Captura de imagem_20250926_150938" src="https://github.com/user-attachments/assets/81255c3a-cfa7-41d2-889b-361778e1265b" />
+
+
+A resposta da aplicação via `curl`:
+
+<img width="1910" height="98" alt="Captura de imagem_20250926_151215" src="https://github.com/user-attachments/assets/b98fd9b7-9791-40d3-ab30-4865e7271ecc" />
+
+
+### 5.3. Testando a alteração no repositório
+Para ter certeza que o ArgoCD está sincronizando corretamente, vamos alterar a mensagem do arquivo `main.py`.
+
+Vamos colocar essa mensagem "Alteração feita com sucesso" e logo seguido vamos dar uma git push do repositório
+
+
+
 
  
 
+
+ 
 
 
 
