@@ -172,6 +172,103 @@ Agora configure os segredos no repositório do hello-app.
 Com todas as permissões e segredos devidamente configurados, A etapa final é criar o arquivo de workflow que orquestra toda a automação. Este arquivo é o cérebro da pipeline de CI/CD. Crie a estrutura de pastas como `.github/workflows/` no seu repositório **hello-app** e, dentro dela, crie o arquivo `ci.yml` com o conteúdo disponibilizado neste repositório. Com este arquivo, a Etapa 2 está finalizado. Agora você tem uma pipeline de CI totalmente funcional que é acionada a cada alteração no código da sua aplicação.
 
 
+Se tudo ocorrer certo, a pipeline gerada será essa:
+<img width="1914" height="822" alt="Captura de imagem_20250926_102251" src="https://github.com/user-attachments/assets/4545c812-7ebc-4644-b4a8-4a002aa801b9" />
+
+A imagem no Docker Hub será essa:
+
+<img width="1910" height="450" alt="Captura de imagem_20250926_102512" src="https://github.com/user-attachments/assets/ba6940e4-fba2-47f9-93d1-8b59f5bcb859" />
+
+Aqui mostra a evidência do pull request para o hello-manifests: 
+
+<img width="1889" height="841" alt="Captura de imagem_20250926_103748" src="https://github.com/user-attachments/assets/edfab371-6be5-4d0b-b15a-5b7d1d4a00d7" />
+
+
+## Etapa 3: Criação dos Manifestos Kubernetes
+Com a pipeline de CI funcionando devidamente, agora devemos definir como a aplicação será executada dentro do cluster Kubernetes. Para isso, deve-se criar os arquivos de manifesto no repositório hello-manifests. Estes arquivos vão ser a "fonte da verdade" que o ArgoCD utilizará para gerenciar a aplicação.
+
+### 3.1. Clone do Repositório de Manifestos
+Primeiramente, clonamos o repositório localmente para poder criar e editar os arquivos.
+
+```
+git clone https://github.com/SEU_USUARIO/hello-manifests.git
+cd hello-manifests
+```
+
+### 3.2. Manifesto de Deployment 
+O Deployment é um objeto do Kubernetes que gerencia a implantação e a escalabilidade da aplicação, garantindo que um número específico de réplicas (pods) esteja sempre em execução. 
+
+Criaremos o arquivo deployment.yaml com seguinte conteúdo:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-app
+  template:
+    metadata:
+      labels:
+        app: hello-app
+    spec:
+      containers:
+      - name: hello-app
+        # IMPORTANTE: A tag inicial pode ser 'latest' ou um commit inicial.
+        # A pipeline de CI/CD irá atualizar esta linha automaticamente.
+        image: SEU_DOCKER_USERNAME/hello-app:latest
+        ports:
+        - containerPort: 80
+```
+Lembre-se de substituir SEU_DOCKER_USERNAME pelo seu nome de usuário do Docker Hub.
+
+
+### 3.3. Manifesto de Service 
+O service expõe nossa aplicação como um serviço de rede, criando um ponto de acesso estável para os pods gerenciados pelo Deployment.
+
+Criaremos o seguinte arquivo service.yaml:
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-app-service
+spec:
+  # O seletor conecta este serviço aos pods com a label 'app: hello-app'
+  selector:
+    app: hello-app
+  ports:
+    - protocol: TCP
+      # A porta 8080 do cluster irá redirecionar para a porta 80 do nosso contêiner
+      port: 8080
+      targetPort: 80
+```
+
+### 3.4. Envio dos Manifestos ao GitHub
+Após criar os dois arquivos, nós os enviamos para a branch `main` do repositório hello-manifests.
+
+```
+git add .
+git commit -m "feat: add initial deployment and service manifests"
+git push origin main
+```
+
+Com esta etapa concluída, o repositório de manifestos está pronto para ser monitorado pelo ArgoCD.
+
+
+## Etapa 4: Criação da Aplicação no ArgoCD
+Com a pipeline de CI (Etapa 2) e os manifestos (Etapa 3) prontos, esta é a etapa que implementa a Entrega Contínua (CD). Configuraremos o ArgoCD para monitorar o repositório hello-manifests e garantir que o estado do nosso cluster Kubernetes seja sempre um reflexo fiel do que está definido nos arquivos de manifesto.
+
+
+
+
+
+
+
+
 
 
 
